@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "../App.css";
 
+//background image for home page 
 const backgroundImageUrl =
     "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80";
 
@@ -16,7 +17,7 @@ export default function Home() {
             <header className="home-header">
                 <div className="home-brand">
                     <span className="home-brand-mark">A</span>
-                    <span>AgroConnect</span>
+                    <span>KrisiConnect</span>
                 </div>
 
                 <div className="home-auth-links">
@@ -48,14 +49,21 @@ export default function Home() {
                 </div>
 
                 <div className="home-card">
-                    <div className="home-card-image" />
+                    <div className="home-card-image"
+                        style={{
+                         backgroundImage:"url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80')",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                    }}
+                /> 
                     <div className="home-card-body">
-                        <h2>Use your own crop image</h2>
+                        <h2>Manage Crops Efficiently</h2>
                         <p>
-                            Replace the background image URL in <span>src/pages/Home.jsx</span> with any public crop photo URL.
+                            Simplify crop procurement by bringing buyers, sellers, and inspectors together on one platform.
                         </p>
                         <p className="home-tip">
-                            Example: use a direct image link from Unsplash, Pexels, or your own hosted image file.
+                            Track requirements, negotiate offers, and monitor inspections from a centralized dashboard.
                         </p>
                     </div>
                 </div>
