@@ -72,7 +72,7 @@ export default function Dashboard() {
                         <>
                             {!user.isVerified && (
                                 <div className="warning" style={{ padding: "10px", backgroundColor: "#fff3cd", borderRadius: "5px", marginBottom: "10px" }}>
-                                    ⚠️ Waiting for admin verification. You cannot inspect until verified.
+                                    ⚠️ Waiting for admin verification. Please wait .
                                 </div>
                             )}
                             <button onClick={() => navigate("/inspector")}>Inspector Dashboard</button>
