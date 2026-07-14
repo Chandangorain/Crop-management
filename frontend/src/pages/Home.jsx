@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "../App.css";
 
 //background image for home page 
-const backgroundImageUrl =
+const backgroundImageUrl = 
     "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80";
 
 export default function Home() {
