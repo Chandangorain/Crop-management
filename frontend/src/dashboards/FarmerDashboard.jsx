@@ -29,7 +29,7 @@ export default function FarmerDashboard() {
     useEffect(() => {
         if (tab === "requirements") loadRequirements();
         if (tab === "my-offers") loadOffers();
-    }, [tab]);
+    }, [tab]);  
 
     const loadRequirements = async () => {
         try {
