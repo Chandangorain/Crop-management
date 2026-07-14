@@ -33,7 +33,7 @@ export default function FarmerDashboard() {
 
     const loadRequirements = async () => {
         try {
-            setLoading(true);
+            setLoading(true); dashboard 
             const response = await getAllActiveRequirements();
             setRequirements(response.data);
         } catch (err) {
