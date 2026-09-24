@@ -7,22 +7,25 @@ const {
     verifyUser,
     createCrop,
     getAllCrops,
-    deleteCrop
+    getCropById,
+    updateCrop,
+    deleteCrop,
+    getAdminAnalytics
 } = require("../controllers/adminController");
+const { cropValidation } = require("../middleware/validation");
 
-// Get all users
+// Analytics endpoint
+router.get("/analytics", auth, roleCheck(["admin"]), getAdminAnalytics);
+
+// User management
 router.get("/users", auth, roleCheck(["admin"]), getAllUsers);
-
-// Verify/Unverify user
 router.put("/users/:userId/verify", auth, roleCheck(["admin"]), verifyUser);
 
-// Create crop
-router.post("/crops", auth, roleCheck(["admin"]), createCrop);
-
-// Get all crops
+// Crop catalog CRUD
+router.post("/crops", auth, roleCheck(["admin"]), cropValidation, createCrop);
 router.get("/crops", getAllCrops);
-
-// Delete crop
+router.get("/crops/:cropId", getCropById);
+router.put("/crops/:cropId", auth, roleCheck(["admin"]), cropValidation, updateCrop);
 router.delete("/crops/:cropId", auth, roleCheck(["admin"]), deleteCrop);
 
 module.exports = router;
