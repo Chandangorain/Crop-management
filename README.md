@@ -271,40 +271,4 @@ For testing the admin functionality:
 9. Bulk operations for admins
 10. Audit logs
 
-## Troubleshooting
 
-### MongoDB Connection Error
-- Ensure MongoDB is running: `mongod`
-- Check MONGODB_URI in .env file
-- Default: mongodb://localhost:27017/agroconnect
-
-### Port Already in Use
-- Backend: Change PORT in .env file
-- Frontend: Vite will auto-increment if 5173 is in use
-
-### CORS Issues
-- Backend CORS is already configured to accept all origins
-- If issues persist, update backend/server.js CORS settings
-
-### Token Expiration
-- Tokens expire after 7 days
-- User must login again after token expires
-
-## Contributing
-
-This project is ready for development. Make sure to:
-1. Create branches for new features
-2. Follow consistent naming conventions
-3. Test thoroughly before pushing changes
-
-## License
-
-MIT License - Feel free to use for personal and commercial projects
-
-## Support
-
-For issues or questions, please create an issue in the repository.
-
----
-
-**Happy Farming with AgroConnect!** 🌾
