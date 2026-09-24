@@ -1,87 +1,44 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import "../App.css";
+import { Loader2 } from "lucide-react";
 
 export default function Dashboard() {
-    const { user, logout } = useContext(AuthContext);
+    const { user, loading } = useContext(AuthContext);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!user) {
-            navigate("/login");
+        if (!loading) {
+            if (!user) {
+                navigate("/login");
+            } else {
+                switch (user.role) {
+                    case "admin":
+                        navigate("/admin", { replace: true });
+                        break;
+                    case "mill_owner":
+                        navigate("/mill-owner", { replace: true });
+                        break;
+                    case "farmer":
+                        navigate("/farmer", { replace: true });
+                        break;
+                    case "inspector":
+                        navigate("/inspector", { replace: true });
+                        break;
+                    default:
+                        navigate("/login", { replace: true });
+                }
+            }
         }
-    }, [user, navigate]);
-
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-    };
-
-    if (!user) {
-        return <div>Loading...</div>;
-    }
+    }, [user, loading, navigate]);
 
     return (
-        <div className="dashboard-container">
-            <div className="navbar">
-                <h1>AgroConnect - {user.name}</h1>
-                <button onClick={handleLogout} className="logout-btn">Logout</button>
-            </div>
-
-            <div className="dashboard-content">
-                <h2>Welcome, {user.name}!</h2>
-                <p>Role: <strong>{user.role}</strong></p>
-                <p>Email: {user.email}</p>
-                <p>Verified: <strong>{user.isVerified ? "✓ Yes" : "✗ No"}</strong></p>
-
-                <div className="dashboard-options">
-                    {user.role === "admin" && (
-                        <>
-                            <button onClick={() => navigate("/admin")}>Admin Dashboard</button>
-                            <p style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>
-                                Manage users, verify mill owners & inspectors, and create crops
-                            </p>
-                        </>
-                    )}
-
-                    {user.role === "mill_owner" && (
-                        <>
-                            {!user.isVerified && (
-                                <div className="warning" style={{ padding: "10px", backgroundColor: "#fff3cd", borderRadius: "5px", marginBottom: "10px" }}>
-                                    ⚠️ Waiting for admin verification. You cannot create requirements until verified.
-                                </div>
-                            )}
-                            <button onClick={() => navigate("/mill-owner")}>Mill Owner Dashboard</button>
-                            <p style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>
-                                Create and manage crop requirements
-                            </p>
-                        </>
-                    )}
-
-                    {user.role === "farmer" && (
-                        <>
-                            <button onClick={() => navigate("/farmer")}>Farmer Dashboard</button>
-                            <p style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>
-                                View requirements and make sell offers
-                            </p>
-                        </>
-                    )}
-
-                    {user.role === "inspector" && (
-                        <>
-                            {!user.isVerified && (
-                                <div className="warning" style={{ padding: "10px", backgroundColor: "#fff3cd", borderRadius: "5px", marginBottom: "10px" }}>
-                                    ⚠️ Waiting for admin verification. Please wait .
-                                </div>
-                            )}
-                            <button onClick={() => navigate("/inspector")}>Inspector Dashboard</button>
-                            <p style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>
-                                Complete inspections and verify transactions
-                            </p>
-                        </>
-                    )}
-                </div>
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+            <div className="flex items-center gap-3 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
+                <span className="text-slate-700 font-semibold text-sm">
+                    Routing to your {user?.role ? user.role.replace("_", " ") : "AgroConnect"} dashboard...
+                </span>
             </div>
         </div>
     );

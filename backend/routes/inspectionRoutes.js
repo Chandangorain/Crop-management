@@ -9,20 +9,21 @@ const {
     getMyInspections,
     completeInspection
 } = require("../controllers/inspectionController");
+const { completeInspectionValidation } = require("../middleware/validation");
 
-// Assign inspection (admin)
+// Assign inspection (Admin only)
 router.post("/assign", auth, roleCheck(["admin"]), assignInspection);
 
-// Get all inspections (admin)
+// Get all inspections (Admin only)
 router.get("/all", auth, roleCheck(["admin"]), getAllInspections);
 
-// Get my inspections (inspector)
+// Get my inspections (Inspector only)
 router.get("/my-inspections", auth, roleCheck(["inspector"]), getMyInspections);
 
 // Get inspection details
 router.get("/:inspectionId", auth, getInspectionDetails);
 
-// Complete inspection (inspector)
-router.put("/:inspectionId/complete", auth, roleCheck(["inspector"]), completeInspection);
+// Complete inspection (Inspector only)
+router.put("/:inspectionId/complete", auth, roleCheck(["inspector"]), completeInspectionValidation, completeInspection);
 
 module.exports = router;

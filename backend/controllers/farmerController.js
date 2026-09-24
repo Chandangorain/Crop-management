@@ -1,61 +1,71 @@
+const crypto = require("crypto");
 const SellOffer = require("../models/SellOffer");
 const MillRequirement = require("../models/MillRequirement");
 
-// Generate random OTP
-const generateOTP = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+// Cryptographically secure 6-digit OTP generator
+const generateSecureOTP = () => {
+    return crypto.randomInt(100000, 1000000).toString();
 };
 
-// Create sell offer
+// Create sell offer (Farmer only)
 const createSellOffer = async (req, res) => {
     try {
         const { requirementId, approxQuantitySell } = req.body;
 
-        if (!requirementId || !approxQuantitySell) {
-            return res.status(400).json({ error: "Please provide requirementId and approxQuantitySell" });
+        const quantity = parseFloat(approxQuantitySell);
+        if (isNaN(quantity) || quantity <= 0) {
+            return res.status(400).json({ error: "Approximate quantity to sell must be a positive number." });
         }
 
         const requirement = await MillRequirement.findById(requirementId);
 
         if (!requirement) {
-            return res.status(404).json({ error: "Requirement not found" });
+            return res.status(404).json({ error: "Target mill requirement not found." });
         }
 
         if (requirement.status === "closed") {
-            return res.status(400).json({ error: "Requirement is closed" });
+            return res.status(400).json({ error: "This mill requirement is closed and no longer accepting offers." });
         }
 
-        if (approxQuantitySell > requirement.requiredTotalQuantity) {
-            return res.status(400).json({ error: "Cannot sell more than required quantity" });
+        if (quantity > requirement.requiredTotalQuantity) {
+            return res.status(400).json({ 
+                error: `Offer quantity (${quantity}) exceeds remaining requirement quantity (${requirement.requiredTotalQuantity}).` 
+            });
         }
 
-        const otp = generateOTP();
+        // Generate cryptographically secure 6-digit OTP
+        const otp = generateSecureOTP();
 
         const offer = new SellOffer({
             requirementId,
             farmerId: req.user.id,
-            approxQuantitySell,
+            approxQuantitySell: quantity,
             otp
         });
 
         await offer.save();
         await offer.populate([
-            { path: "requirementId" },
+            {
+                path: "requirementId",
+                populate: [
+                    { path: "cropId", select: "name season type" },
+                    { path: "millOwnerId", select: "name email phone address millName millLocation" }
+                ]
+            },
             { path: "farmerId", select: "name email phone address" }
         ]);
 
-        // Return OTP only to the farmer (don't send in response ideally, but for now showing)
         res.status(201).json({
-            message: "Sell offer created successfully",
+            message: "Sell offer created successfully. Please keep your 6-digit OTP safe for inspector verification.",
             offer,
-            otp // OTP should be sent via email/SMS in production
+            otp
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// Get all offers of a farmer
+// Get all offers of the logged-in farmer (farmer can see their own OTP)
 const getMyOffers = async (req, res) => {
     try {
         const offers = await SellOffer.find({ farmerId: req.user.id })
@@ -66,7 +76,8 @@ const getMyOffers = async (req, res) => {
                     { path: "millOwnerId", select: "name email phone address millName millLocation" }
                 ]
             })
-            .populate("farmerId", "name email phone address");
+            .populate("farmerId", "name email phone address")
+            .sort({ createdAt: -1 });
 
         res.json(offers);
     } catch (error) {
@@ -74,10 +85,11 @@ const getMyOffers = async (req, res) => {
     }
 };
 
-// Get all pending offers (for admin)
+// Get all pending offers (for Admin to assign inspectors - OTP excluded for security)
 const getAllPendingOffers = async (req, res) => {
     try {
         const offers = await SellOffer.find({ status: "pending" })
+            .select("-otp") // Never leak OTP
             .populate({
                 path: "requirementId",
                 populate: [
@@ -85,7 +97,8 @@ const getAllPendingOffers = async (req, res) => {
                     { path: "millOwnerId", select: "name email phone address millName millLocation" }
                 ]
             })
-            .populate("farmerId", "name email phone address");
+            .populate("farmerId", "name email phone address")
+            .sort({ createdAt: -1 });
 
         res.json(offers);
     } catch (error) {
@@ -98,7 +111,7 @@ const getOfferDetails = async (req, res) => {
     try {
         const { offerId } = req.params;
 
-        const offer = await SellOffer.findById(offerId)
+        let query = SellOffer.findById(offerId)
             .populate({
                 path: "requirementId",
                 populate: [
@@ -108,11 +121,19 @@ const getOfferDetails = async (req, res) => {
             })
             .populate("farmerId", "name email phone address");
 
+        // Only the owner farmer can see the OTP
+        const offer = await query;
         if (!offer) {
-            return res.status(404).json({ error: "Offer not found" });
+            return res.status(404).json({ error: "Sell offer not found." });
         }
 
-        res.json(offer);
+        const isOwner = req.user && offer.farmerId && offer.farmerId._id.toString() === req.user.id;
+        const offerObj = offer.toObject();
+        if (!isOwner) {
+            delete offerObj.otp;
+        }
+
+        res.json(offerObj);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -8,14 +8,15 @@ const {
     getAllPendingOffers,
     getOfferDetails
 } = require("../controllers/farmerController");
+const { sellOfferValidation } = require("../middleware/validation");
 
-// Create sell offer
-router.post("/create", auth, roleCheck(["farmer"]), createSellOffer);
+// Create sell offer (Farmer only)
+router.post("/create", auth, roleCheck(["farmer"]), sellOfferValidation, createSellOffer);
 
-// Get all offers of a farmer
+// Get all offers of logged in farmer
 router.get("/my-offers", auth, roleCheck(["farmer"]), getMyOffers);
 
-// Get all pending offers (admin)
+// Get all pending offers (Admin only)
 router.get("/all-pending", auth, roleCheck(["admin"]), getAllPendingOffers);
 
 // Get offer details
