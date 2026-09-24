@@ -258,17 +258,5 @@ For testing the admin functionality:
 - Protected routes for sensitive operations
 - Request headers contain JWT token
 
-## Future Enhancements
-
-1. Email/SMS notifications for OTP and status updates
-2. Payment gateway integration
-3. Reviews and ratings system
-4. Real-time chat between farmers and mill owners
-5. Analytics dashboard for insights
-6. Mobile app version
-7. Advanced search and filtering
-8. Document upload for verification
-9. Bulk operations for admins
-10. Audit logs
 
 
